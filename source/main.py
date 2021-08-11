@@ -16,13 +16,23 @@ class TileType(Enum):
 
 
 def pointsInSize(size: tuple) -> tuple:
-  yield from product(*[range(dimension) for dimension in size])
+  yield from product(*tuple(map(range, reversed(size))))
 
 
 class GridMap:
 
   def fromMapFile(mapFilePath: str):
-    return GridMap([], (0, 0))
+    symbolToTileDict = { t.symbol: t for t in TileType }
+    tiles = []
+    width = 0
+    height = 0
+    with open(mapFilePath, 'rt') as mapFile:
+      for line in mapFile:
+        line = line.rstrip().upper()
+        width = max(width, len(line))
+        height += 1
+        tiles.extend([symbolToTileDict[s] for s in line])
+    return GridMap(tiles, (width, height))
 
   def __init__(self, tiles: list, size: tuple) -> None:
     self.startingPoint = None
