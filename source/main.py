@@ -1,14 +1,18 @@
-from enum import auto, IntEnum
+from enum import Enum
 from itertools import product
 
 
-class TileType(IntEnum):
+class TileType(Enum):
 
-  FLOOR = auto()
-  WALL = auto()
-  INITIAL_POINT = auto()
-  EXTRACTION_ZONE = auto()
-  PACKAGE = auto()
+  FLOOR = ('.', )
+  WALL = ('#', )
+  INITIAL_POINT = ('I', )
+  EXTRACTION_ZONE = ('E', )
+  PACKAGE = ('P', )
+
+  def __init__(self, symbol: str) -> None:
+      super().__init__()
+      self.symbol = symbol
 
 
 def pointsInSize(size: tuple) -> tuple:
@@ -20,7 +24,7 @@ class GridMap:
   def fromMapFile(mapFilePath: str):
     return GridMap([], (0, 0))
 
-  def __init__(self, tiles: list, size: tuple):
+  def __init__(self, tiles: list, size: tuple) -> None:
     self.startingPoint = None
     self.extractionArea = []
     self.packageStartingPoint = None
