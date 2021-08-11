@@ -48,3 +48,9 @@ class GridMap:
         self.extractionArea.append(p)
       elif t is TileType.PACKAGE:
         self.packageStartingPoint = p
+
+  def isPointWithinExtractionArea(self, point: tuple) -> bool:
+    return point in self.extractionArea
+
+  def isPointReachable(self, point: tuple) -> bool:
+    return point in self.walkabilityMap and self.walkabilityMap[point]
