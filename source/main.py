@@ -78,5 +78,8 @@ class MoveableObject:
 
 class Package(MoveableObject):
 
+  def pickupArea(self) -> list:
+    return [addPointAndVector(self.referencePoint, vector) for vector in [(-1, 0), (1, 0)]]
+
   def isPointWithinPickupArea(self, point: tuple) -> bool:
-    return distanceVectorBetweenPoints(point, self.referencePoint) in [(-1, 0), (1, 0)]
+    return point in self.pickupArea()
