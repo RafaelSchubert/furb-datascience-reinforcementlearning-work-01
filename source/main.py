@@ -86,3 +86,19 @@ class Package(MoveableObject):
 
   def isPointWithinPickupArea(self, point: tuple) -> bool:
     return point in self.pickupArea()
+
+
+class Agent(MoveableObject):
+
+  def __init__(self, referencePoint: tuple) -> None:
+    super().__init__(referencePoint)
+    self.attachedObjects = []
+
+  def attachObject(self, obj: MoveableObject) -> None:
+    if obj not in self.attachedObjects:
+      self.attachedObjects.append(obj)
+
+  def move(self, vector: tuple) -> None:
+    super().move(vector)
+    for obj in self.attachedObjects:
+      obj.move(vector)
