@@ -1,6 +1,5 @@
 from enum import Enum
 from itertools import product
-from os import walk
 
 
 class TileType(Enum):
