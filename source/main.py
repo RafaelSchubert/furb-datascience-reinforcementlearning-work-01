@@ -73,13 +73,16 @@ class MoveableObject:
     self.referencePoint = referencePoint
 
   def move(self, vector: tuple) -> None:
-    self.referencePoint = addPointAndVector(self.referencePoint, vector)
+    self.referencePoint = self.movementDestination(vector)
+
+  def movementDestination(self, vector: tuple) -> tuple:
+    return addPointAndVector(self.referencePoint, vector)
 
 
 class Package(MoveableObject):
 
   def pickupArea(self) -> list:
-    return [addPointAndVector(self.referencePoint, vector) for vector in [(-1, 0), (1, 0)]]
+    return list(map(self.movementDestination, [(-1, 0), (1, 0)]))
 
   def isPointWithinPickupArea(self, point: tuple) -> bool:
     return point in self.pickupArea()
