@@ -1,18 +1,20 @@
 from enum import Enum
 from itertools import product
+from os import walk
 
 
 class TileType(Enum):
 
-  FLOOR = ('.', )
-  WALL = ('#', )
-  INITIAL_POINT = ('I', )
-  EXTRACTION_ZONE = ('E', )
-  PACKAGE = ('P', )
+  FLOOR = ('.', True)
+  WALL = ('#', False)
+  INITIAL_POINT = ('I', True)
+  EXTRACTION_ZONE = ('E', True)
+  PACKAGE_POINT = ('P', True)
 
-  def __init__(self, symbol: str) -> None:
+  def __init__(self, symbol: str, walkable: bool) -> None:
       super().__init__()
       self.symbol = symbol
+      self.walkable = walkable
 
 
 def pointsInSize(size: tuple) -> tuple:
@@ -43,12 +45,12 @@ class GridMap:
     self.size = size
     self.walkabilityMap = {}
     for (t, p) in zip(tiles, pointsInSize(self.size)):
-      self.walkabilityMap[p] = t is not TileType.WALL
+      self.walkabilityMap[p] = t.walkable
       if t is TileType.INITIAL_POINT:
         self.startingPoint = p
       elif t is TileType.EXTRACTION_ZONE:
         self.extractionArea.append(p)
-      elif t is TileType.PACKAGE:
+      elif t is TileType.PACKAGE_POINT:
         self.packageStartingPoint = p
 
   def isPointWithinExtractionArea(self, point: tuple) -> bool:
