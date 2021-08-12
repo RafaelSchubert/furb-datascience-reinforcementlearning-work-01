@@ -57,3 +57,12 @@ class GridMap:
 
   def isPointReachable(self, point: tuple) -> bool:
     return point in self.walkabilityMap and self.walkabilityMap[point]
+
+
+class MoveableObject:
+
+  def __init__(self, referencePoint: tuple) -> None:
+    self.referencePoint = referencePoint
+
+  def move(self, vector: tuple) -> None:
+    self.referencePoint = tuple(map(sum, zip(self.referencePoint, vector)))
