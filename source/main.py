@@ -59,10 +59,24 @@ class GridMap:
     return point in self.walkabilityMap and self.walkabilityMap[point]
 
 
+def addPointAndVector(point: tuple, vector: tuple) -> tuple:
+  return tuple(map(sum, zip(point, vector)))
+
+
+def distanceVectorBetweenPoints(destPoint: tuple, startPoint: tuple) -> tuple:
+  return tuple(d-s for (d, s) in zip(destPoint, startPoint))
+
+
 class MoveableObject:
 
   def __init__(self, referencePoint: tuple) -> None:
     self.referencePoint = referencePoint
 
   def move(self, vector: tuple) -> None:
-    self.referencePoint = tuple(map(sum, zip(self.referencePoint, vector)))
+    self.referencePoint = addPointAndVector(self.referencePoint, vector)
+
+
+class Package(MoveableObject):
+
+  def isPointWithinPickupArea(self, point: tuple) -> bool:
+    return distanceVectorBetweenPoints(point, self.referencePoint) in [(-1, 0), (1, 0)]
