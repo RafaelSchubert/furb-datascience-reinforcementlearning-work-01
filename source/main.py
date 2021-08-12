@@ -16,7 +16,9 @@ class TileType(Enum):
 
 
 def pointsInSize(size: tuple) -> tuple:
-  yield from product(*tuple(map(range, reversed(size))))
+  sizeRanges = tuple(map(range, reversed(size)))
+  coordinatesIteration = map(reversed, product(*sizeRanges))
+  yield from map(tuple, coordinatesIteration)
 
 
 class GridMap:
