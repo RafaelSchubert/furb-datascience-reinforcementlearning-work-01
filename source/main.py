@@ -44,14 +44,14 @@ class GridMap:
     self.packageStartingPoint = None
     self.size = size
     self.walkabilityMap = {}
-    for (t, p) in zip(tiles, pointsInSize(self.size)):
-      self.walkabilityMap[p] = t.walkable
-      if t is TileType.INITIAL_POINT:
-        self.startingPoint = p
-      elif t is TileType.EXTRACTION_ZONE:
-        self.extractionArea.append(p)
-      elif t is TileType.PACKAGE_POINT:
-        self.packageStartingPoint = p
+    for (tile, point) in zip(tiles, pointsInSize(self.size)):
+      self.walkabilityMap[point] = tile.walkable
+      if tile is TileType.INITIAL_POINT:
+        self.startingPoint = point
+      elif tile is TileType.EXTRACTION_ZONE:
+        self.extractionArea.append(point)
+      elif tile is TileType.PACKAGE_POINT:
+        self.packageStartingPoint = point
 
   def isPointWithinExtractionArea(self, point: tuple) -> bool:
     return point in self.extractionArea
