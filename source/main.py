@@ -72,17 +72,23 @@ class MoveableObject:
   def __init__(self, referencePoint: tuple) -> None:
     self.referencePoint = referencePoint
 
-  def move(self, vector: tuple) -> None:
-    self.referencePoint = self.movementDestination(vector)
+  def occupiedArea(self) -> list:
+    return [self.referencePoint]
 
-  def movementDestination(self, vector: tuple) -> tuple:
+  def occupiedAreaOnMovement(self, vector: tuple) -> list:
+    return [self.referencePointOnMovement(vector)]
+
+  def move(self, vector: tuple) -> None:
+    self.referencePoint = self.referencePointOnMovement(vector)
+
+  def referencePointOnMovement(self, vector: tuple) -> tuple:
     return addPointAndVector(self.referencePoint, vector)
 
 
 class Package(MoveableObject):
 
   def pickupArea(self) -> list:
-    return list(map(self.movementDestination, [(-1, 0), (1, 0)]))
+    return list(map(self.referencePointOnMovement, [(-1, 0), (1, 0)]))
 
   def isPointWithinPickupArea(self, point: tuple) -> bool:
     return point in self.pickupArea()
@@ -97,6 +103,18 @@ class Agent(MoveableObject):
   def attachObject(self, obj: MoveableObject) -> None:
     if obj not in self.attachedObjects:
       self.attachedObjects.append(obj)
+
+  def occupiedArea(self) -> list:
+    area = super().occupiedArea()
+    for obj in self.attachedObjects:
+      area.extend(obj.occupiedArea())
+    return area
+
+  def occupiedAreaOnMovement(self, vector: tuple) -> list:
+    area = super().occupiedAreaOnMovement(vector)
+    for obj in self.attachedObjects:
+      area.extend(obj.occupiedAreaOnMovement(vector))
+    return area
 
   def move(self, vector: tuple) -> None:
     super().move(vector)
