@@ -131,18 +131,19 @@ class GridWorldScene:
     self.agent = Agent(self.gridMap.agentStartingPoint)
 
   def graphView(self) -> str:
-    return '\n'.join(self.rowGraphView_(row) for row in range(self.gridMap.size[1]))
+    return '\n'.join(map(self.rowGraphView_, range(self.gridMap.size[1])))
 
   def rowGraphView_(self, row: int) -> str:
-    return ''.join(self.tileGraphSymbol_((col, row)) for col in range(self.gridMap.size[0]))
+    coordinates = product(range(self.gridMap.size[0]), [row])
+    return ''.join(map(self.tileGraphSymbol_, coordinates))
 
   def tileGraphSymbol_(self, point: tuple) -> str:
-    if not self.gridMap.isPointReachable(point):
-      return TileType.WALL.symbol
     if point == self.agent.referencePoint:
       return 'A'
     if point == self.package.referencePoint:
-      return 'P'
+      return TileType.PACKAGE_POINT.symbol
     if self.gridMap.isPointWithinExtractionArea(point):
       return TileType.EXTRACTION_ZONE.symbol
+    if not self.gridMap.isPointReachable(point):
+      return TileType.WALL.symbol
     return TileType.FLOOR.symbol
