@@ -79,9 +79,6 @@ class MoveableObject:
   def occupiedAreaOnMovement(self, vector: tuple) -> list:
     return [self.referencePointOnMovement(vector)]
 
-  def move(self, vector: tuple) -> None:
-    self.referencePoint = self.referencePointOnMovement(vector)
-
   def referencePointOnMovement(self, vector: tuple) -> tuple:
     return addPointAndVector(self.referencePoint, vector)
 
@@ -117,11 +114,6 @@ class Agent(MoveableObject):
       area.extend(obj.occupiedAreaOnMovement(vector))
     return area
 
-  def move(self, vector: tuple) -> None:
-    super().move(vector)
-    for obj in self.attachedObjects:
-      obj.move(vector)
-
 
 class GridWorldScene:
 
@@ -149,7 +141,7 @@ class GridWorldScene:
     return TileType.FLOOR.symbol
 
   def moveAgent(self, vector: tuple) -> None:
-    agentPositionOnMovement = self.agent.referencePointOnMovement(vector)
+    agentPositionOnMovement = addPointAndVector(self.agent.referencePoint, vector)
     if self.isPointOccupiableByAgent(agentPositionOnMovement):
       self.agent.referencePoint = agentPositionOnMovement
 
