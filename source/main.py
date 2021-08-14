@@ -1,3 +1,4 @@
+import numpy as np
 from enum import Enum
 from itertools import product
 
@@ -17,7 +18,7 @@ class TileType(Enum):
 
 
 def pointsInSize(size: tuple) -> tuple:
-  sizeRanges = tuple(map(range, reversed(size)))
+  sizeRanges = list(map(range, reversed(size)))
   coordinatesIteration = map(reversed, product(*sizeRanges))
   yield from map(tuple, coordinatesIteration)
 
@@ -38,7 +39,7 @@ class GridMap:
     return GridMap(tiles, (width, height))
 
   def __init__(self, tiles: list, size: tuple) -> None:
-    self.startingPoint = None
+    self.agentStartingPoint = None
     self.extractionArea = []
     self.packageStartingPoint = None
     self.size = size
@@ -46,7 +47,7 @@ class GridMap:
     for (tile, point) in zip(tiles, pointsInSize(self.size)):
       self.walkabilityMap[point] = tile.walkable
       if tile is TileType.INITIAL_POINT:
-        self.startingPoint = point
+        self.agentStartingPoint = point
       elif tile is TileType.EXTRACTION_ZONE:
         self.extractionArea.append(point)
       elif tile is TileType.PACKAGE_POINT:
@@ -120,3 +121,11 @@ class Agent(MoveableObject):
     super().move(vector)
     for obj in self.attachedObjects:
       obj.move(vector)
+
+
+class GridWorldScene:
+
+  def __init__(self, sceneFile: str) -> None:
+    self.gridMap = GridMap.fromMapFile(sceneFile)
+    self.package = Package(self.gridMap.packageStartingPoint)
+    self.agent = Agent(self.gridMap.agentStartingPoint)
