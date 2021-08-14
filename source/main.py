@@ -147,3 +147,11 @@ class GridWorldScene:
     if not self.gridMap.isPointReachable(point):
       return TileType.WALL.symbol
     return TileType.FLOOR.symbol
+
+  def moveAgent(self, vector: tuple) -> None:
+    agentPositionOnMovement = self.agent.referencePointOnMovement(vector)
+    if self.isPointOccupiableByAgent(agentPositionOnMovement):
+      self.agent.referencePoint = agentPositionOnMovement
+
+  def isPointOccupiableByAgent(self, point: tuple) -> bool:
+    return self.gridMap.isPointReachable(point) and point != self.package.referencePoint
