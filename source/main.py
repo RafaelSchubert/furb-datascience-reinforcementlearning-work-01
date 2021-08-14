@@ -146,4 +146,8 @@ class GridWorldScene:
       self.agent.referencePoint = agentPositionOnMovement
 
   def isPointOccupiableByAgent(self, point: tuple) -> bool:
-    return self.gridMap.isPointReachable(point) and point != self.package.referencePoint
+    return (self.gridMap.isPointReachable(point) and
+            (point != self.package.referencePoint or self.isPackageCaptured()))
+
+  def isPackageCaptured(self) -> bool:
+    return self.package.isPointWithinPickupArea(self.agent.referencePoint)
