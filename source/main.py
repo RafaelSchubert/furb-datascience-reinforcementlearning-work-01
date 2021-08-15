@@ -1,4 +1,3 @@
-import numpy as np
 from enum import Enum
 from itertools import product
 
@@ -173,3 +172,15 @@ class GridWorldScene:
   def isPointOccupiableByAgent_(self, point: tuple) -> bool:
     return (self.gridMap.isPointReachable(point) and
             (point != self.package.referencePoint or self.agent.isObjectCaptured(self.package)))
+
+
+class GridWorldAction(Enum):
+
+  MOVE_AGENT_NORTH = ('Move the agent 1 tile to the north.', )
+  MOVE_AGENT_SOUTH = ('Move the agent 1 tile to the south.', )
+  MOVE_AGENT_EAST = ('Move the agent 1 tile to the east.', )
+  MOVE_AGENT_WEST = ('Move the agent 1 tile to the west.',)
+
+  def __init__(self, description) -> None:
+    super().__init__()
+    self.description = description
