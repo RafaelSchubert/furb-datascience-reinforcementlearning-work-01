@@ -1,3 +1,4 @@
+import random
 from enum import Enum
 from itertools import product
 
@@ -197,7 +198,34 @@ class GridWorldProblem:
 
   def resetEpisode_(self) -> None:
     self.scene = GridWorldScene(self.sceneFile)
+    self.episodeCycleCount = 0
 
   def initScores_(self) -> None:
     statesIteration = product(pointsInSize(self.scene.gridMap.size), GridWorldAction)
     self.scores = { state: 0. for state in statesIteration }
+
+  def runEpisode_(self) -> None:
+    self.resetEpisode_()
+    while (not self.scene.isGoalAchieved()):
+      self.runEpisodeCycle_()
+
+  def runEpisodeCycle_(self) -> None:
+    self.episodeCycleCount += 1
+    self.takeAction_()
+
+  def takeAction_(self) -> None:
+    actionToTake = self.chooseAction_()
+    self.executeAction_(actionToTake)
+
+  def chooseAction_(self) -> GridWorldAction:
+    return random.choice(list(GridWorldAction))
+
+  def executeAction_(self, action: GridWorldAction) -> None:
+    if action is GridWorldAction.MOVE_AGENT_NORTH:
+      self.scene.moveAgent((0, -1))
+    elif action is GridWorldAction.MOVE_AGENT_SOUTH:
+      self.scene.moveAgent((0, +1))
+    elif action is GridWorldAction.MOVE_AGENT_EAST:
+      self.scene.moveAgent((+1, 0))
+    elif action is GridWorldAction.MOVE_AGENT_WEST:
+      self.scene.moveAgent((-1, 0))
