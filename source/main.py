@@ -151,6 +151,12 @@ class GridWorldScene:
       return TileType.WALL.symbol
     return TileType.FLOOR.symbol
 
+  def isGoalAchieved(self) -> bool:
+    return self.isAgentWithinExtractionZone_() and self.agent.isObjectCaptured(self.package)
+
+  def isAgentWithinExtractionZone_(self) -> bool:
+    return all(map(self.gridMap.isPointWithinExtractionArea, self.agent.occupiedArea()))
+
   def moveAgent(self, vector: tuple) -> None:
     self.agentTriesToCapturePackage_()
     if self.canAgentMove_(vector):
