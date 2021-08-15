@@ -85,32 +85,35 @@ class MoveableObject:
 
 class Package(MoveableObject):
 
-  def pickupArea(self) -> list:
+  def captureArea(self) -> list:
     return list(map(self.referencePointOnMovement, [(-1, 0), (1, 0)]))
 
-  def isPointWithinPickupArea(self, point: tuple) -> bool:
-    return point in self.pickupArea()
+  def isPointWithinCaptureArea(self, point: tuple) -> bool:
+    return point in self.captureArea()
 
 
 class Agent(MoveableObject):
 
   def __init__(self, referencePoint: tuple) -> None:
     super().__init__(referencePoint)
-    self.attachedObjects = []
+    self.capturedObjects = []
 
-  def attachObject(self, obj: MoveableObject) -> None:
-    if obj not in self.attachedObjects:
-      self.attachedObjects.append(obj)
+  def captureObject(self, obj: MoveableObject) -> None:
+    if not self.isObjectCaptured(obj):
+      self.capturedObjects.append(obj)
+
+  def isObjectCaptured(self, obj: MoveableObject) -> bool:
+    return obj in self.capturedObjects
 
   def occupiedArea(self) -> list:
     area = super().occupiedArea()
-    for obj in self.attachedObjects:
+    for obj in self.capturedObjects:
       area.extend(obj.occupiedArea())
     return area
 
   def occupiedAreaOnMovement(self, vector: tuple) -> list:
     area = super().occupiedAreaOnMovement(vector)
-    for obj in self.attachedObjects:
+    for obj in self.capturedObjects:
       area.extend(obj.occupiedAreaOnMovement(vector))
     return area
 
@@ -141,13 +144,20 @@ class GridWorldScene:
     return TileType.FLOOR.symbol
 
   def moveAgent(self, vector: tuple) -> None:
-    agentPositionOnMovement = addPointAndVector(self.agent.referencePoint, vector)
-    if self.isPointOccupiableByAgent(agentPositionOnMovement):
-      self.agent.referencePoint = agentPositionOnMovement
+    self.agentTriesToCapturePackage()
+    if self.canAgentMove(vector):
+      self.agent.referencePoint = addPointAndVector(self.agent.referencePoint, vector)
+      for capturedObj in self.agent.capturedObjects:
+        capturedObj.referencePoint = addPointAndVector(capturedObj.referencePoint, vector)
+
+  def agentTriesToCapturePackage(self) -> None:
+    if self.package.isPointWithinCaptureArea(self.agent.referencePoint):
+      self.agent.captureObject(self.package)
+
+  def canAgentMove(self, vector: tuple) -> bool:
+    agentOccupiedAreaOnMovement = self.agent.occupiedAreaOnMovement(vector)
+    return all(map(self.isPointOccupiableByAgent, agentOccupiedAreaOnMovement))
 
   def isPointOccupiableByAgent(self, point: tuple) -> bool:
     return (self.gridMap.isPointReachable(point) and
-            (point != self.package.referencePoint or self.isPackageCaptured()))
-
-  def isPackageCaptured(self) -> bool:
-    return self.package.isPointWithinPickupArea(self.agent.referencePoint)
+            (point != self.package.referencePoint or self.agent.isObjectCaptured(self.package)))
