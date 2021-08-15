@@ -79,6 +79,9 @@ class MoveableObject:
   def occupiedAreaOnMovement(self, vector: tuple) -> list:
     return [self.referencePointOnMovement(vector)]
 
+  def move(self, vector: tuple) -> None:
+    self.referencePoint = self.referencePointOnMovement(vector)
+
   def referencePointOnMovement(self, vector: tuple) -> tuple:
     return addPointAndVector(self.referencePoint, vector)
 
@@ -117,6 +120,11 @@ class Agent(MoveableObject):
       area.extend(obj.occupiedAreaOnMovement(vector))
     return area
 
+  def move(self, vector: tuple) -> None:
+      super().move(vector)
+      for obj in self.capturedObjects:
+        obj.move(vector)
+
 
 class GridWorldScene:
 
@@ -146,9 +154,7 @@ class GridWorldScene:
   def moveAgent(self, vector: tuple) -> None:
     self.agentTriesToCapturePackage()
     if self.canAgentMove(vector):
-      self.agent.referencePoint = addPointAndVector(self.agent.referencePoint, vector)
-      for capturedObj in self.agent.capturedObjects:
-        capturedObj.referencePoint = addPointAndVector(capturedObj.referencePoint, vector)
+      self.agent.move(vector)
 
   def agentTriesToCapturePackage(self) -> None:
     if self.package.isPointWithinCaptureArea(self.agent.referencePoint):
