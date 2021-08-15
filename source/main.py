@@ -152,18 +152,18 @@ class GridWorldScene:
     return TileType.FLOOR.symbol
 
   def moveAgent(self, vector: tuple) -> None:
-    self.agentTriesToCapturePackage()
-    if self.canAgentMove(vector):
+    self.agentTriesToCapturePackage_()
+    if self.canAgentMove_(vector):
       self.agent.move(vector)
 
-  def agentTriesToCapturePackage(self) -> None:
+  def agentTriesToCapturePackage_(self) -> None:
     if self.package.isPointWithinCaptureArea(self.agent.referencePoint):
       self.agent.captureObject(self.package)
 
-  def canAgentMove(self, vector: tuple) -> bool:
+  def canAgentMove_(self, vector: tuple) -> bool:
     agentOccupiedAreaOnMovement = self.agent.occupiedAreaOnMovement(vector)
-    return all(map(self.isPointOccupiableByAgent, agentOccupiedAreaOnMovement))
+    return all(map(self.isPointOccupiableByAgent_, agentOccupiedAreaOnMovement))
 
-  def isPointOccupiableByAgent(self, point: tuple) -> bool:
+  def isPointOccupiableByAgent_(self, point: tuple) -> bool:
     return (self.gridMap.isPointReachable(point) and
             (point != self.package.referencePoint or self.agent.isObjectCaptured(self.package)))
