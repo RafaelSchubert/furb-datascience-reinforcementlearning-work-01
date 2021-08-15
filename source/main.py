@@ -1,6 +1,8 @@
 from enum import Enum
 from itertools import product
 
+from numpy.core.fromnumeric import prod
+
 
 class TileType(Enum):
 
@@ -179,8 +181,23 @@ class GridWorldAction(Enum):
   MOVE_AGENT_NORTH = ('Move the agent 1 tile to the north.', )
   MOVE_AGENT_SOUTH = ('Move the agent 1 tile to the south.', )
   MOVE_AGENT_EAST = ('Move the agent 1 tile to the east.', )
-  MOVE_AGENT_WEST = ('Move the agent 1 tile to the west.',)
+  MOVE_AGENT_WEST = ('Move the agent 1 tile to the west.', )
 
   def __init__(self, description) -> None:
     super().__init__()
     self.description = description
+
+
+class GridWorldProblem:
+
+  def __init__(self, sceneFilePath: str) -> None:
+    self.sceneFile = sceneFilePath
+    self.resetEpisode_()
+    self.initScores_()
+
+  def resetEpisode_(self) -> None:
+    self.scene = GridWorldScene(self.sceneFile)
+
+  def initScores_(self) -> None:
+    statesIteration = product(pointsInSize(self.scene.gridMap.size), GridWorldAction)
+    self.scores = { state: 0. for state in statesIteration }
