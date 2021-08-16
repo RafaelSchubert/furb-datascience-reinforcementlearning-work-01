@@ -1,3 +1,4 @@
+from hashlib import new
 import random
 from enum import Enum
 from itertools import product
@@ -211,11 +212,15 @@ class GridWorldProblem:
 
   def runEpisodeCycle_(self) -> None:
     self.episodeCycleCount += 1
-    self.takeAction_()
+    oldState = self.scene.agent.referencePoint
+    actionTaken = self.takeAction_()
+    newState = self.scene.agent.referencePoint
+    self.reinforceLearning_(oldState, newState, actionTaken)
 
   def takeAction_(self) -> None:
-    actionToTake = self.chooseAction_()
-    self.executeAction_(actionToTake)
+    action = self.chooseAction_()
+    self.executeAction_(action)
+    return action
 
   def chooseAction_(self) -> GridWorldAction:
     return random.choice(list(GridWorldAction))
@@ -229,3 +234,12 @@ class GridWorldProblem:
       self.scene.moveAgent((+1, 0))
     elif action is GridWorldAction.MOVE_AGENT_WEST:
       self.scene.moveAgent((-1, 0))
+
+  def reinforceLearning_(self, oldState: tuple, newState: tuple, actionTaken: GridWorldAction) -> None:
+    oldStateScoreKey = (oldState, actionTaken)
+    oldStateScore = self.scores[oldStateScoreKey]
+    self.scores[oldStateScoreKey] = oldStateScore + 0.01 * (-0.1 + 0.9 * self.maximumScoreForState_(newState) - oldStateScore)
+
+  def maximumScoreForState_(self, point: tuple) -> float:
+    possibleStatesIteration = map(tuple, product([point], GridWorldAction))
+    return max(map(self.scores.get, possibleStatesIteration))
