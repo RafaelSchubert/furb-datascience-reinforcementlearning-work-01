@@ -201,6 +201,14 @@ class GridWorldProblem:
   def __init__(self, sceneFilePath: str, parameters: GridWorldParameters = GridWorldParameters()) -> None:
     self.sceneFile = sceneFilePath
     self.parameters = parameters
+    self.reset_()
+
+  def run(self, episodes: int = 1) -> None:
+    self.reset_()
+    for _ in range(episodes):
+      self.runEpisode_()
+
+  def reset_(self) -> None:
     self.resetEpisode_()
     self.initScores_()
 
