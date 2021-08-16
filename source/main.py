@@ -1,9 +1,6 @@
-from hashlib import new
 import random
 from enum import Enum
 from itertools import product
-
-from numpy.core.fromnumeric import prod
 
 
 class TileType(Enum):
@@ -190,10 +187,19 @@ class GridWorldAction(Enum):
     self.description = description
 
 
+class GridWorldParameters:
+
+  def __init__(self, *, decayRate: float = 0.9, learningRate: float = 0.01, reward: float = -0.1) -> None:
+    self.decayRate = decayRate
+    self.learningRate = learningRate
+    self.reward = reward
+
+
 class GridWorldProblem:
 
-  def __init__(self, sceneFilePath: str) -> None:
+  def __init__(self, sceneFilePath: str, parameters: GridWorldParameters = GridWorldParameters()) -> None:
     self.sceneFile = sceneFilePath
+    self.parameters = parameters
     self.resetEpisode_()
     self.initScores_()
 
@@ -236,9 +242,13 @@ class GridWorldProblem:
       self.scene.moveAgent((-1, 0))
 
   def reinforceLearning_(self, oldState: tuple, newState: tuple, actionTaken: GridWorldAction) -> None:
-    oldStateScoreKey = (oldState, actionTaken)
-    oldStateScore = self.scores[oldStateScoreKey]
-    self.scores[oldStateScoreKey] = oldStateScore + 0.01 * (-0.1 + 0.9 * self.maximumScoreForState_(newState) - oldStateScore)
+    self.scores[(oldState, actionTaken)] += self.parameters.learningRate * self.reinforcementValue_(oldState, newState, actionTaken)
+
+  def reinforcementValue_(self, oldState: tuple, newState: tuple, actionTaken: GridWorldAction) -> float:
+    return self.parameters.reward + self.parameters.decayRate * self.temporalDifference_(oldState, newState, actionTaken)
+
+  def temporalDifference_(self, oldState: tuple, newState: tuple, actionTaken: GridWorldAction) -> float:
+    return self.maximumScoreForState_(newState) - self.scores[(oldState, actionTaken)]
 
   def maximumScoreForState_(self, point: tuple) -> float:
     possibleStatesIteration = map(tuple, product([point], GridWorldAction))
