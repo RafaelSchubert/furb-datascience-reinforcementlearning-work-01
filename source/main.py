@@ -189,8 +189,9 @@ class GridWorldAction(Enum):
 
 class GridWorldParameters:
 
-  def __init__(self, *, decayRate: float = 0.9, learningRate: float = 0.01, reward: float = -0.1) -> None:
+  def __init__(self, *, decayRate: float = 0.9, explorationRate: float = 0.1, learningRate: float = 0.01, reward: float = -0.1) -> None:
     self.decayRate = decayRate
+    self.explorationRate = explorationRate
     self.learningRate = learningRate
     self.reward = reward
 
@@ -232,6 +233,14 @@ class GridWorldProblem:
     return action
 
   def chooseAction_(self) -> GridWorldAction:
+    if self.parameters.explorationRate < random.random():
+      return self.chooseAnyAction_()
+    return self.chooseBestAction_()
+
+  def chooseAnyAction_(self) -> GridWorldAction:
+    return random.choice(list(GridWorldAction))
+
+  def chooseBestAction_(self) -> GridWorldAction:
     currentState = self.currentState_()
     bestLearntActions = self.bestActionsForState(currentState)
     return random.choice(bestLearntActions)
