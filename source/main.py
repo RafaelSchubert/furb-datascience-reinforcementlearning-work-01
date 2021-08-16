@@ -208,8 +208,8 @@ class GridWorldProblem:
     self.episodeCycleCount = 0
 
   def initScores_(self) -> None:
-    statesIteration = product(pointsInSize(self.scene.gridMap.size), GridWorldAction)
-    self.scores = { state: 0. for state in statesIteration }
+    scoreKeysIteration = product(pointsInSize(self.scene.gridMap.size), GridWorldAction)
+    self.scores = dict(product(scoreKeysIteration, [0.]))
 
   def runEpisode_(self) -> None:
     self.resetEpisode_()
@@ -218,10 +218,13 @@ class GridWorldProblem:
 
   def runEpisodeCycle_(self) -> None:
     self.episodeCycleCount += 1
-    oldState = self.scene.agent.referencePoint
+    oldState = self.currentState_()
     actionTaken = self.takeAction_()
-    newState = self.scene.agent.referencePoint
+    newState = self.currentState_()
     self.reinforceLearning_(oldState, newState, actionTaken)
+
+  def currentState_(self) -> tuple:
+    return self.scene.agent.referencePoint
 
   def takeAction_(self) -> None:
     action = self.chooseAction_()
@@ -250,6 +253,6 @@ class GridWorldProblem:
   def temporalDifference_(self, oldState: tuple, newState: tuple, actionTaken: GridWorldAction) -> float:
     return self.maximumScoreForState_(newState) - self.scores[(oldState, actionTaken)]
 
-  def maximumScoreForState_(self, point: tuple) -> float:
-    possibleStatesIteration = map(tuple, product([point], GridWorldAction))
+  def maximumScoreForState_(self, state: tuple) -> float:
+    possibleStatesIteration = map(tuple, product([state], GridWorldAction))
     return max(map(self.scores.get, possibleStatesIteration))
