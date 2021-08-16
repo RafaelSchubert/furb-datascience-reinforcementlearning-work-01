@@ -233,10 +233,12 @@ class GridWorldProblem:
 
   def chooseAction_(self) -> GridWorldAction:
     currentState = self.currentState_()
-    actionScoresForState = { action: self.scores[(currentState, action)] for action in GridWorldAction }
-    maximumActionScoreForState = max(actionScoresForState.values())
-    bestLearntActions = [action for action in actionScoresForState if actionScoresForState[action] == maximumActionScoreForState]
+    bestLearntActions = self.bestActionsForState(currentState)
     return random.choice(bestLearntActions)
+
+  def bestActionsForState(self, state: tuple) -> list:
+    maximumActionScoreForState = self.maximumScoreForState_(state)
+    return [action for action in GridWorldAction if self.scores[(state, action)] == maximumActionScoreForState]
 
   def executeAction_(self, action: GridWorldAction) -> None:
     if action is GridWorldAction.MOVE_AGENT_NORTH:
