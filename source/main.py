@@ -189,11 +189,24 @@ class GridWorldAction(Enum):
 
 class GridWorldParameters:
 
-  def __init__(self, *, decayRate: float = 0.9, explorationRate: float = 0.1, learningRate: float = 0.01, reward: float = -0.1) -> None:
+  def __init__(
+        self,
+        *,
+        decayRate: float = 0.9,
+        explorationRate: float = 0.1,
+        learningRate: float = 0.01,
+        punishmentForMovement: float = -0.1,
+        punishmentForInvalidMovement: float = -1.,
+        rewardForPackageCapture: float = +1.,
+        rewardForPackageExtraction: float = +1.
+      ) -> None:
     self.decayRate = decayRate
     self.explorationRate = explorationRate
     self.learningRate = learningRate
-    self.reward = reward
+    self.punishmentForMovement = punishmentForMovement
+    self.punishmentForInvalidMovement = punishmentForInvalidMovement
+    self.rewardForPackageCapture = rewardForPackageCapture
+    self.rewardForPackageExtraction = rewardForPackageExtraction
 
 
 class GridWorldProblem:
@@ -276,7 +289,27 @@ class GridWorldProblem:
     self.scores[(oldState, actionTaken)] += self.parameters.learningRate * self.reinforcementValue_(oldState, newState, actionTaken)
 
   def reinforcementValue_(self, oldState: tuple, newState: tuple, actionTaken: GridWorldAction) -> float:
-    return self.parameters.reward + self.parameters.decayRate * self.temporalDifference_(oldState, newState, actionTaken)
+    return self.punishmentOrRewardValue_(oldState, newState) + self.parameters.decayRate * self.temporalDifference_(oldState, newState, actionTaken)
+
+  def punishmentOrRewardValue_(self, oldState: tuple, newState: tuple) -> float:
+    if self.didAgentNotMove_(oldState, newState):
+      return self.parameters.punishmentForInvalidMovement
+    elif self.isPackageBeingDelivered_():
+      return self.parameters.rewardForPackageExtraction
+    elif self.isPackageBeingCaptured_(newState):
+      return self.parameters.rewardForPackageCapture
+    return self.parameters.punishmentForMovement
+
+  def didAgentNotMove_(self, oldState: tuple, newState: tuple) -> bool:
+    return newState == oldState
+
+  def isPackageBeingCaptured_(self, newState: tuple) -> bool:
+    return (not self.scene.agent.isObjectCaptured(self.scene.package) and
+            self.scene.package.isPointWithinCaptureArea(newState))
+
+  def isPackageBeingDelivered_(self) -> bool:
+    return (self.scene.agent.isObjectCaptured(self.scene.package) and
+            all(map(self.scene.gridMap.isPointWithinExtractionArea, self.scene.package.occupiedArea())))
 
   def temporalDifference_(self, oldState: tuple, newState: tuple, actionTaken: GridWorldAction) -> float:
     return self.maximumScoreForState_(newState) - self.scores[(oldState, actionTaken)]
