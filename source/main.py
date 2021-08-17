@@ -73,12 +73,6 @@ class MoveableObject:
   def __init__(self, referencePoint: tuple) -> None:
     self.referencePoint = referencePoint
 
-  def occupiedArea(self) -> list:
-    return [self.referencePoint]
-
-  def occupiedAreaOnMovement(self, vector: tuple) -> list:
-    return [self.referencePointOnMovement(vector)]
-
   def move(self, vector: tuple) -> None:
     self.referencePoint = self.referencePointOnMovement(vector)
 
@@ -107,18 +101,6 @@ class Agent(MoveableObject):
 
   def isObjectCaptured(self, obj: MoveableObject) -> bool:
     return obj in self.capturedObjects
-
-  def occupiedArea(self) -> list:
-    area = super().occupiedArea()
-    for obj in self.capturedObjects:
-      area.extend(obj.occupiedArea())
-    return area
-
-  def occupiedAreaOnMovement(self, vector: tuple) -> list:
-    area = super().occupiedAreaOnMovement(vector)
-    for obj in self.capturedObjects:
-      area.extend(obj.occupiedAreaOnMovement(vector))
-    return area
 
   def move(self, vector: tuple) -> None:
       super().move(vector)
@@ -152,10 +134,8 @@ class GridWorldScene:
     return TileType.FLOOR.symbol
 
   def isGoalAchieved(self) -> bool:
-    return self.isPackageWithinExtractionZone_() and self.agent.isObjectCaptured(self.package)
-
-  def isPackageWithinExtractionZone_(self) -> bool:
-    return all(map(self.gridMap.isPointWithinExtractionArea, self.package.occupiedArea()))
+    return (self.gridMap.isPointWithinExtractionArea(self.package.referencePoint) and
+            self.agent.isObjectCaptured(self.package))
 
   def moveAgent(self, vector: tuple) -> None:
     self.agentTriesToCapturePackage_()
@@ -167,8 +147,9 @@ class GridWorldScene:
       self.agent.captureObject(self.package)
 
   def canAgentMove_(self, vector: tuple) -> bool:
-    agentOccupiedAreaOnMovement = self.agent.occupiedAreaOnMovement(vector)
-    return all(map(self.isPointOccupiableByAgent_, agentOccupiedAreaOnMovement))
+    relevantObjects = [self.agent] + self.agent.capturedObjects
+    relevantPoints = (obj.referencePointOnMovement(vector) for obj in relevantObjects)
+    return all(map(self.isPointOccupiableByAgent_, relevantPoints))
 
   def isPointOccupiableByAgent_(self, point: tuple) -> bool:
     return (self.gridMap.isPointReachable(point) and
@@ -309,7 +290,7 @@ class GridWorldProblem:
 
   def isPackageBeingDelivered_(self) -> bool:
     return (self.scene.agent.isObjectCaptured(self.scene.package) and
-            all(map(self.scene.gridMap.isPointWithinExtractionArea, self.scene.package.occupiedArea())))
+            self.scene.gridMap.isPointWithinExtractionArea(self.scene.package.referencePoint))
 
   def temporalDifference_(self, oldState: tuple, newState: tuple, actionTaken: GridWorldAction) -> float:
     return self.maximumScoreForState_(newState) - self.scores[(oldState, actionTaken)]
