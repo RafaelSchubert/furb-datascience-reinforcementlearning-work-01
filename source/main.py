@@ -202,16 +202,18 @@ class GridWorldProblem:
     self.sceneFile = sceneFilePath
     self.parameters = parameters
     self.reset_()
+    self.episodeCount = 0
 
   def run(self, episodes: int = 1) -> None:
     self.reset_()
+    self.episodeCount = episodes
     for _ in range(episodes):
       self.runEpisode_()
 
   def reset_(self) -> None:
     self.scene = None
-    self.scores = None
-    self.episodeCycleCount = 0
+    self.scores = {}
+    self.episodeCyclesCount = []
 
   def runEpisode_(self) -> None:
     self.resetEpisode_()
@@ -220,16 +222,16 @@ class GridWorldProblem:
 
   def resetEpisode_(self) -> None:
     self.scene = GridWorldScene(self.sceneFile)
-    if self.scores is None:
+    if not self.scores:
       self.initScores_()
-    self.episodeCycleCount = 0
+    self.episodeCyclesCount.append(0)
 
   def initScores_(self) -> None:
     scoreKeysIteration = product(pointsInSize(self.scene.gridMap.size), GridWorldAction)
     self.scores = dict(product(scoreKeysIteration, [0.]))
 
   def runEpisodeCycle_(self) -> None:
-    self.episodeCycleCount += 1
+    self.episodeCyclesCount[-1] += 1
     oldState = self.currentState_()
     actionTaken = self.takeAction_()
     newState = self.currentState_()
