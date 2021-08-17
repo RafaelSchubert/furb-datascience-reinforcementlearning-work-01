@@ -209,21 +209,24 @@ class GridWorldProblem:
       self.runEpisode_()
 
   def reset_(self) -> None:
+    self.scene = None
+    self.scores = None
+    self.episodeCycleCount = 0
+
+  def runEpisode_(self) -> None:
     self.resetEpisode_()
-    self.initScores_()
+    while not self.scene.isGoalAchieved():
+      self.runEpisodeCycle_()
 
   def resetEpisode_(self) -> None:
     self.scene = GridWorldScene(self.sceneFile)
+    if self.scores is None:
+      self.initScores_()
     self.episodeCycleCount = 0
 
   def initScores_(self) -> None:
     scoreKeysIteration = product(pointsInSize(self.scene.gridMap.size), GridWorldAction)
     self.scores = dict(product(scoreKeysIteration, [0.]))
-
-  def runEpisode_(self) -> None:
-    self.resetEpisode_()
-    while (not self.scene.isGoalAchieved()):
-      self.runEpisodeCycle_()
 
   def runEpisodeCycle_(self) -> None:
     self.episodeCycleCount += 1
