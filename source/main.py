@@ -260,8 +260,8 @@ class GridWorldProblem:
 
   def chooseAction_(self) -> GridWorldAction:
     if self.parameters.explorationRate < random.random():
-      return self.chooseAnyAction_()
-    return self.chooseBestAction_()
+      return self.chooseBestAction_()
+    return self.chooseAnyAction_()
 
   def chooseAnyAction_(self) -> GridWorldAction:
     return random.choice(list(GridWorldAction))
