@@ -1,6 +1,6 @@
 import random
 from enum import Enum
-from itertools import product
+from itertools import accumulate, product
 
 
 class TileType(Enum):
@@ -207,22 +207,34 @@ class GridWorldProblem:
   def reset_(self) -> None:
     self.scene = None
     self.scores = {}
+    self.movesLimit = 0
     self.episodeCyclesCount = []
 
   def runEpisode_(self) -> None:
     self.resetEpisode_()
-    while not self.scene.isGoalAchieved():
+    while not self.isEpisodeFinished_():
       self.runEpisodeCycle_()
 
   def resetEpisode_(self) -> None:
     self.scene = GridWorldScene(self.sceneFile)
+    self.movesLimit = self.maximumNumberOfMoves_()
     if not self.scores:
       self.initScores_()
     self.episodeCyclesCount.append(0)
 
+  def maximumNumberOfMoves_(self) -> int:
+    totalReachableTiles = sum(self.scene.gridMap.walkabilityMap.values())
+    tilesOccupiedByObjects = 2
+    estimatedBackAndForthJourneyLength = 2 * (totalReachableTiles - tilesOccupiedByObjects)
+    return max(estimatedBackAndForthJourneyLength, 0)
+
   def initScores_(self) -> None:
     scoreKeysIteration = product(pointsInSize(self.scene.gridMap.size), GridWorldAction)
     self.scores = dict(product(scoreKeysIteration, [0.]))
+
+  def isEpisodeFinished_(self) -> bool:
+    return (self.scene.isGoalAchieved() or
+            self.movesLimit < self.episodeCyclesCount[-1])
 
   def runEpisodeCycle_(self) -> None:
     self.episodeCyclesCount[-1] += 1
