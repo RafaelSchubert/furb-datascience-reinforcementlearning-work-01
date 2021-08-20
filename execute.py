@@ -310,3 +310,16 @@ class GridWorldProblem:
   def maximumScoreForState_(self, state: tuple) -> float:
     possibleStatesIteration = map(tuple, product([state], GridWorldAction))
     return max(map(self.scores.get, possibleStatesIteration))
+
+
+import matplotlib.pyplot as plt
+from statistics import mean
+
+foo = GridWorldProblem('C:\\Users\\Rafael\\Documents\\Projetos\\especializacao\\reinforcement-learning\\trabalho-final\\in\\default-scenario.map')
+foo.run(10000)
+
+iterations = list(range(0, len(foo.episodeCyclesCount), 50))
+plt.plot([min(i+50, len(foo.episodeCyclesCount)) for i in iterations],
+         [mean(foo.episodeCyclesCount[i:i+50]) for i in iterations],
+         'b-')
+plt.show()
