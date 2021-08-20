@@ -325,10 +325,11 @@ def main():
 
   print(f'Ran {numberOfEpisodes} episode(s) in {executionTimeInSeconds:.2f} second(s).')
 
-  iterations = list(range(0, len(problem.episodeCyclesCount), 50))
+  graphGranularity = 20
+  iterations = list(range(0, len(problem.episodeCyclesCount), graphGranularity))
 
-  plt.plot([min(i+50, len(problem.episodeCyclesCount)) for i in iterations],
-           [mean(problem.episodeCyclesCount[i:i+50]) for i in iterations],
+  plt.plot([min(i+graphGranularity, len(problem.episodeCyclesCount)) for i in iterations],
+           [mean(problem.episodeCyclesCount[i:i+graphGranularity]) for i in iterations],
            'b-')
   plt.title('Convergence Curve')
   plt.xlabel('Episode')
