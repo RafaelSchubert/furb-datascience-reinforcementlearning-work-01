@@ -1,6 +1,9 @@
 import random
+import matplotlib.pyplot as plt
+from datetime import datetime
 from enum import Enum
 from itertools import product
+from statistics import mean
 
 
 class TileType(Enum):
@@ -310,3 +313,23 @@ class GridWorldProblem:
   def maximumScoreForState_(self, state: tuple) -> float:
     possibleStatesIteration = map(tuple, product([state], GridWorldAction))
     return max(map(self.scores.get, possibleStatesIteration))
+
+
+def main():
+
+  problem = GridWorldProblem('scenario.map')
+  problem.run(1000)
+
+  iterations = list(range(0, len(problem.episodeCyclesCount), 50))
+
+  plt.plot([min(i+50, len(problem.episodeCyclesCount)) for i in iterations],
+          [mean(problem.episodeCyclesCount[i:i+50]) for i in iterations],
+          'b-')
+  plt.title('Convergence Curve')
+  plt.xlabel('Episode')
+  plt.ylabel('Moves')
+  plt.savefig(f'convergence-{datetime.now():%Y%m%d%H%M%S}')
+
+
+if __name__ == "__main__":
+  main()
