@@ -63,3 +63,22 @@ To change the hyperparameters used in the agent's training, modify the values in
 - **punishmentForInvalidMovement:** value awarded to the agent for taking an action that results in no movement;
 - **rewardForPackageCapture:** value awarded to the agent for taking an action that results in the capture of the package;
 - **rewardForPackageExtraction:** value awarded to the agent for taking an action that results in delivering the package to the extraction zone.
+
+### 2.4) Running different scenarios
+
+To change the scenario that the agent will face against, modify the file [scenario.map](./scenario.map). The map must obey the following rules, or the behavior of the script will be undefined:
+
+- The map must be _rectangular_ — that is, all lines must have the same number of characters;
+- There must be exactly ONE starting point for the agent;
+- There must be exactly ONE starting point for the package;
+- There must be at least ONE extraction point;
+
+Use the following characters to describe the scenario:
+
+- `'.'`: represents a free tile where the agent can freely move into;
+- `'#'`: represents a blocked tile that bars the agent's movement;
+- `'I'`: represents the starting point of the agent in the scenario;
+- `'P'`: represents the starting point of the package in the scenario;
+- `'E'`: represents an extraction point within the scenario.
+
+The file already contains the default scenario described in it.
