@@ -1,0 +1,9 @@
+parameter,value
+episodes,1000.0
+decayRate,0.9
+explorationRate,0.1
+learningRate,0.01
+punishmentForMovement,-0.1
+punishmentForInvalidMovement,-1.0
+rewardForPackageCapture,+1.0
+rewardForPackageExtraction,+1.0

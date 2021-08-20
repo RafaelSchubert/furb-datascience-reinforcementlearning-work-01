@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 import random
 import timeit
 from datetime import datetime
@@ -318,9 +319,19 @@ class GridWorldProblem:
 
 def main():
 
-  problem = GridWorldProblem('scenario.map')
+  problemConfigValues = pd.read_csv('problem-config.csv', index_col='parameter')['value']
+  problemParameters = GridWorldParameters(
+    decayRate = problemConfigValues['decayRate'],
+    explorationRate = problemConfigValues['explorationRate'],
+    learningRate = problemConfigValues['learningRate'],
+    punishmentForMovement = problemConfigValues['punishmentForMovement'],
+    punishmentForInvalidMovement = problemConfigValues['punishmentForInvalidMovement'],
+    rewardForPackageCapture = problemConfigValues['rewardForPackageCapture'],
+    rewardForPackageExtraction = problemConfigValues['rewardForPackageExtraction']
+  )
+  numberOfEpisodes = int(problemConfigValues['episodes'])
 
-  numberOfEpisodes = 1000
+  problem = GridWorldProblem('scenario.map', problemParameters)
   executionTimeInSeconds = timeit.timeit(lambda: problem.run(numberOfEpisodes), number=1)
 
   print(f'Ran {numberOfEpisodes} episode(s) in {executionTimeInSeconds:.2f} second(s).')
