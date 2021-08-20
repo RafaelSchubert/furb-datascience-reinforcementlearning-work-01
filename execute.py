@@ -1,5 +1,6 @@
-import random
 import matplotlib.pyplot as plt
+import random
+import timeit
 from datetime import datetime
 from enum import Enum
 from itertools import product
@@ -318,13 +319,17 @@ class GridWorldProblem:
 def main():
 
   problem = GridWorldProblem('scenario.map')
-  problem.run(1000)
+
+  numberOfEpisodes = 1000
+  executionTimeInSeconds = timeit.timeit(lambda: problem.run(numberOfEpisodes), number=1)
+
+  print(f'Ran {numberOfEpisodes} episode(s) in {executionTimeInSeconds:.2f} second(s).')
 
   iterations = list(range(0, len(problem.episodeCyclesCount), 50))
 
   plt.plot([min(i+50, len(problem.episodeCyclesCount)) for i in iterations],
-          [mean(problem.episodeCyclesCount[i:i+50]) for i in iterations],
-          'b-')
+           [mean(problem.episodeCyclesCount[i:i+50]) for i in iterations],
+           'b-')
   plt.title('Convergence Curve')
   plt.xlabel('Episode')
   plt.ylabel('Moves')
