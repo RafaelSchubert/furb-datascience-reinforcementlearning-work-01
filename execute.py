@@ -331,6 +331,8 @@ def main():
   )
   numberOfEpisodes = int(problemConfigValues['episodes'])
 
+  random.seed(20210820)
+
   problem = GridWorldProblem('scenario.map', problemParameters)
   executionTimeInSeconds = timeit.timeit(lambda: problem.run(numberOfEpisodes), number=1)
 
